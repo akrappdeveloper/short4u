@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Short4u</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1877f2;
+            --secondary-color: #42b72a;
+            --background-color: #f0f2f5;
+            --text-color: #1c1e21;
+            --text-color-light: #65676b;
+            --border-color: #dddfe2;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        header {
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        nav ul {
+            list-style-type: none;
+            display: flex;
+        }
+
+        nav ul li {
+            margin-left: 20px;
+        }
+
+        nav ul li a {
+            color: var(--text-color-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        main {
+            margin-top: 60px;
+            padding: 20px 0;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        h1, h2 {
+            margin-bottom: 15px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input, textarea {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #166fe5;
+        }
+
+        .posts-list {
+            margin-top: 20px;
+        }
+
+        .post {
+            background-color: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .post .author {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .post .timestamp {
+            font-size: 0.8rem;
+            color: var(--text-color-light);
+            margin-bottom: 10px;
+        }
+
+        .post .content {
+            margin-bottom: 10px;
+        }
+
+        .post .actions {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-color-light);
+            font-size: 0.9rem;
+        }
+
+        .post .actions span {
+            cursor: pointer;
+        }
+
+        .post .actions span:hover {
+            color: var(--primary-color);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-picture {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 20px;
+        }
+
+        .profile-info h1 {
+            margin: 0;
+        }
+
+        .profile-info p {
+            color: var(--text-color-light);
+        }
+
+        .connections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .connection-card {
+            background-color: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .connection-card img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+
+        .reels-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 15px;
+            padding: 15px 0;
+        }
+
+        .reel {
+            flex: 0 0 auto;
+            width: 120px;
+            height: 200px;
+            background-color: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .reel img, .reel video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .reel .reel-author {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: #fff;
+            font-size: 0.8rem;
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        .search-results {
+            margin-top: 20px;
+        }
+
+        .search-result {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .search-result img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+            }
+
+            nav ul {
+                margin-top: 10px;
+            }
+
+            nav ul li {
+                margin-left: 0;
+                margin-right: 15px;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-picture {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+
+            .connections-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .post .actions {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .post .actions span {
+                margin-bottom: 5px;
+            }
+
+            .connections-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">Short4u</a>
+                <nav>
+                    <ul id="nav-menu">
+                        <li><a href="#" id="home-link"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="#" id="profile-link"><i class="fas fa-user"></i> Profile</a></li>
+                        <li><a href="#" id="connections-link"><i class="fas fa-users"></i> Connections</a></li>
+                        <li><a href="#" id="search-link"><i class="fas fa-search"></i> Search</a></li>
+                        <li><a href="#" id="auth-link"><i class="fas fa-sign-in-alt"></i> Login/Signup</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content" class="container">
+        <!-- Content will be dynamically loaded here -->
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+        apiKey: "AIzaSyBrS4Lt9Ial4mBM1Fo_H3fqJt5u3WwarMk",
+        authDomain: "short4u-6d25f.web.app",
+        databaseURL: "https://short4u-6d25f-default-rtdb.firebaseio.com/",
+        projectId: "short4u-6d25f",
+        storageBucket: "gs://short4u-6d25f.appspot.com",
+        messagingSenderId: "short4u",
+        appId: "1:157319807751:web:5b4fd16dbb190246a47ba2",
+        measurementId: "https://analytics.google.com/analytics/web/?authuser=0&hl=en#/p461157141/reports/dashboard?r=firebase-overview"
+    };
+       // Initialize Firebase
+       firebase.initializeApp(firebaseConfig);
+
+       // Get references to Firebase services
+       const auth = firebase.auth();
+       const database = firebase.database();
+       const storage = firebase.storage();
+
+        // DOM elements
+        const mainContent = document.getElementById('main-content');
+        const navMenu = document.getElementById('nav-menu');
+        const authLink = document.getElementById('auth-link');
+        const homeLink = document.getElementById('home-link');
+        const profileLink = document.getElementById('profile-link');
+        const connectionsLink = document.getElementById('connections-link');
+        const searchLink = document.getElementById('search-link');
+
+        // Event listeners
+        homeLink.addEventListener('click', showHome);
+        profileLink.addEventListener('click', showProfile);
+        connectionsLink.addEventListener('click', showConnections);
+        searchLink.addEventListener('click', showSearch);
+        authLink.addEventListener('click', showAuthForm);
+
+        // Authentication state observer
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                authLink.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+                authLink.removeEventListener('click', showAuthForm);
+                authLink.addEventListener('click', handleLogout);
+                showHome();
+            } else {
+                authLink.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login/Signup';
+                authLink.removeEventListener('click', handleLogout);
+                authLink.addEventListener('click', showAuthForm);
+                showAuthForm();
+            }
+        });
+
+        // Authentication functions
+        function handleAuth(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .catch((error) => {
+                    console.error('Error logging in:', error);
+                    alert('Error logging in: ' + error.message);
+                });
+        }
+
+        function handleSignup() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    database.ref('users/' + user.uid).set({
+                        email: user.email,
+                        displayName: '',
+                        bio: ''
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error signing up:', error);
+                    alert('Error signing up: ' + error.message);
+                });
+        }
+
+        function handleLogout() {
+            auth.signOut()
+                .catch((error) => {
+                    console.error('Error logging out:', error);
+                    alert('Error logging out: ' + error.message);
+                });
+        }
+
+        // Profile functions
+        function updateProfile(e) {
+            e.preventDefault();
+            const user = auth.currentUser;
+            const displayName = document.getElementById('display-name').value;
+            const bio = document.getElementById('bio').value;
+            const profilePicture = document.getElementById('profile-picture').files[0];
+            
+            if (profilePicture) {
+                const storageRef = storage.ref('profile_pictures/' + user.uid);
+                storageRef.put(profilePicture).then(() => {
+                    storageRef.getDownloadURL().then((url) => {
+                        updateProfileData(user.uid, displayName, bio, url);
+                    });
+                });
+            } else {
+                updateProfileData(user.uid, displayName, bio);
+            }
+        }
+
+        function updateProfileData(userId, displayName, bio, profilePictureUrl = null) {
+            const updateData = {
+                displayName: displayName,
+                bio: bio
+            };
+
+            if (profilePictureUrl) {
+                updateData.profilePicture = profilePictureUrl;
+            }
+
+            database.ref('users/' + userId).update(updateData)
+            .then(() => {
+                alert('Profile updated successfully!');
+                showProfile();
+            })
+            .catch((error) => {
+                console.error('Error updating profile:', error);
+                alert('Error updating profile: ' + error.message);
+            });
+        }
+
+        // Post functions
+        function createPost(e) {
+            e.preventDefault();
+            const user = auth.currentUser;
+            const content = document.getElementById('post-content').value;
+            const postImage = document.getElementById('post-image').files[0];
+            
+            if (postImage) {
+                const storageRef = storage.ref('post_images/' + Date.now());
+                storageRef.put(postImage).then(() => {
+                    storageRef.getDownloadURL().then((url) => {
+                        savePost(user.uid, content, url);
+                    });
+                });
+            } else {
+                savePost(user.uid, content);
+            }
+        }
+
+        function savePost(userId, content, imageUrl = null) {
+            const postData = {
+                userId: userId,
+                content: content,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            if (imageUrl) {
+                postData.imageUrl = imageUrl;
+            }
+
+            database.ref('posts').push(postData)
+            .then(() => {
+                document.getElementById('post-content').value = '';
+                
+                document.getElementById('post-image').value = '';
+                alert('Post created successfully!');
+                showHome();
+            })
+            .catch((error) => {
+                console.error('Error creating post:', error);
+                alert('Error creating post: ' + error.message);
+            });
+        }
+
+        function loadPosts(container, query = null) {
+            const postsRef = query ? query : database.ref('posts').orderByChild('timestamp').limitToLast(20);
+            postsRef.on('value', (snapshot) => {
+                container.innerHTML = '';
+                const posts = [];
+                snapshot.forEach((childSnapshot) => {
+                    posts.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+                posts.reverse().forEach(post => {
+                    const postElement = createPostElement(post);
+                    container.appendChild(postElement);
+                });
+            });
+        }
+
+        function createPostElement(post) {
+            const postElement = document.createElement('div');
+            postElement.className = 'post';
+            
+            database.ref('users/' + post.userId).once('value', (userSnapshot) => {
+                const user = userSnapshot.val();
+                postElement.innerHTML = `
+                    <div class="author">${user.displayName || 'Anonymous'}</div>
+                    <div class="timestamp">${new Date(post.timestamp).toLocaleString()}</div>
+                    <div class="content">${post.content}</div>
+                    ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Post image" style="max-width: 100%; margin-top: 10px;">` : ''}
+                    <div class="actions">
+                        <span><i class="far fa-thumbs-up"></i> Like</span>
+                        <span><i class="far fa-comment"></i> Comment</span>
+                        <span><i class="far fa-share-square"></i> Share</span>
+                    </div>
+                `;
+            });
+            return postElement;
+        }
+
+        // Reel functions
+        function createReel(e) {
+            e.preventDefault();
+            const user = auth.currentUser;
+            const reelVideo = document.getElementById('reel-video').files[0];
+            
+            if (reelVideo) {
+                const storageRef = storage.ref('reels/' + Date.now());
+                storageRef.put(reelVideo).then(() => {
+                    storageRef.getDownloadURL().then((url) => {
+                        saveReel(user.uid, url);
+                    });
+                });
+            } else {
+                alert('Please select a video for your reel.');
+            }
+        }
+
+        function saveReel(userId, videoUrl) {
+            const reelData = {
+                userId: userId,
+                videoUrl: videoUrl,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            database.ref('reels').push(reelData)
+            .then(() => {
+                document.getElementById('reel-video').value = '';
+                alert('Reel created successfully!');
+                showHome();
+            })
+            .catch((error) => {
+                console.error('Error creating reel:', error);
+                alert('Error creating reel: ' + error.message);
+            });
+        }
+
+        function loadReels(container) {
+            database.ref('reels').orderByChild('timestamp').limitToLast(10).on('value', (snapshot) => {
+                container.innerHTML = '';
+                const reels = [];
+                snapshot.forEach((childSnapshot) => {
+                    reels.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+                reels.reverse().forEach(reel => {
+                    const reelElement = createReelElement(reel);
+                    container.appendChild(reelElement);
+                });
+            });
+        }
+
+        function createReelElement(reel) {
+            const reelElement = document.createElement('div');
+            reelElement.className = 'reel';
+            
+            database.ref('users/' + reel.userId).once('value', (userSnapshot) => {
+                const user = userSnapshot.val();
+                reelElement.innerHTML = `
+                    <video src="${reel.videoUrl}" loop muted></video>
+                    <div class="reel-author">${user.displayName || 'Anonymous'}</div>
+                `;
+                const video = reelElement.querySelector('video');
+                video.addEventListener('click', () => {
+                    if (video.paused) {
+                        video.play();
+                    } else {
+                        video.pause();
+                    }
+                });
+            });
+            return reelElement;
+        }
+
+        // Search function
+        function performSearch() {
+            const searchQuery = document.getElementById('search-input').value.toLowerCase();
+            const searchResults = document.getElementById('search-results');
+            searchResults.innerHTML = '';
+
+            database.ref('users').orderByChild('displayName').startAt(searchQuery).endAt(searchQuery + '\uf8ff').once('value', (snapshot) => {
+                snapshot.forEach((childSnapshot) => {
+                    const user = childSnapshot.val();
+                    const userElement = document.createElement('div');
+                    userElement.className = 'search-result';
+                    userElement.innerHTML = `
+                        <img src="${user.profilePicture || 'https://via.placeholder.com/50'}" alt="${user.displayName}">
+                        <span>${user.displayName}</span>
+                    `;
+                    searchResults.appendChild(userElement);
+                });
+            });
+        }
+
+        // Navigation functions
+        function showHome() {
+            mainContent.innerHTML = `
+                <div class="card">
+                    <h2>Create a Post</h2>
+                    <form id="post-form">
+                        <textarea id="post-content" placeholder="What's on your mind?" required></textarea>
+                        <input type="file" id="post-image" accept="image/*">
+                        <button type="submit">Post</button>
+                    </form>
+                </div>
+                <div class="card">
+                    <h2>Create a Reel</h2>
+                    <form id="reel-form">
+                        <input type="file" id="reel-video" accept="video/*" required>
+                        <button type="submit">Upload Reel</button>
+                    </form>
+                </div>
+                <div class="card">
+                    <h2>Reels</h2>
+                    <div class="reels-container" id="reels-list"></div>
+                </div>
+                <div class="card">
+                    <h2>Recent Posts</h2>
+                    <div class="posts-list" id="posts-list"></div>
+                </div>
+            `;
+            document.getElementById('post-form').addEventListener('submit', createPost);
+            document.getElementById('reel-form').addEventListener('submit', createReel);
+            loadPosts(document.getElementById('posts-list'));
+            loadReels(document.getElementById('reels-list'));
+        }
+
+        function showProfile() {
+            const user = auth.currentUser;
+            if (user) {
+                database.ref('users/' + user.uid).once('value', (snapshot) => {
+                    const userData = snapshot.val();
+                    mainContent.innerHTML = `
+                        <div class="card">
+                            <div class="profile-header">
+                                <img src="${userData.profilePicture || 'https://via.placeholder.com/150'}" alt="Profile Picture" class="profile-picture">
+                                <div class="profile-info">
+                                    <h1>${userData.displayName || 'Anonymous'}</h1>
+                                    <p>${userData.bio || 'No bio available'}</p>
+                                </div>
+                            </div>
+                            <h2>Edit Profile</h2>
+                            <form id="profile-form">
+                                <input type="text" id="display-name" placeholder="Display Name" value="${userData.displayName || ''}" required>
+                                <textarea id="bio" placeholder="Bio">${userData.bio || ''}</textarea>
+                                <input type="file" id="profile-picture" accept="image/*">
+                                <button type="submit">Update Profile</button>
+                            </form>
+                        </div>
+                        <div class="card">
+                            <h2>Your Posts</h2>
+                            <div class="posts-list" id="user-posts"></div>
+                        </div>
+                    `;
+                    document.getElementById('profile-form').addEventListener('submit', updateProfile);
+                    loadPosts(document.getElementById('user-posts'), database.ref('posts').orderByChild('userId').equalTo(user.uid));
+                });
+            } else {
+                alert('Please log in to view your profile.');
+                showAuthForm();
+            }
+        }
+
+        function showConnections() {
+            mainContent.innerHTML = `
+                <div class="card">
+                    <h2>Your Connections</h2>
+                    <div class="connections-grid" id="connections-list"></div>
+                </div>
+            `;
+            loadConnections();
+        }
+
+        function showSearch() {
+            mainContent.innerHTML = `
+                <div class="card">
+                    <h2>Search Users</h2>
+                    <div class="search-container">
+                        <input type="text" id="search-input" placeholder="Search users...">
+                        <button onclick="performSearch()">Search</button>
+                    </div>
+                    <div class="search-results" id="search-results"></div>
+                </div>
+            `;
+        }
+
+        function showAuthForm() {
+            mainContent.innerHTML = `
+                <div class="card">
+                    <h2>Login / Sign Up</h2>
+                    <form id="auth-form">
+                        <input type="email" id="email" placeholder="Email" required>
+                        <input type="password" id="password" placeholder="Password" required>
+                        <button type="submit" id="login-btn">Login</button>
+                        <button type="button" id="signup-btn">Sign Up</button>
+                    </form>
+                </div>
+            `;
+            document.getElementById('auth-form').addEventListener('submit', handleAuth);
+            document.getElementById('signup-btn').addEventListener('click', handleSignup);
+        }
+
+        function loadConnections() {
+            // This is a placeholder function. In a real application, you would load the user's connections from the database.
+            const connectionsData = [
+                { id: 1, name: "John Doe", image: "https://via.placeholder.com/100" },
+                { id: 2, name: "Jane Smith", image: "https://via.placeholder.com/100" },
+                { id: 3, name: "Bob Johnson", image: "https://via.placeholder.com/100" },
+            ];
+
+            const connectionsList = document.getElementById('connections-list');
+            connectionsList.innerHTML = '';
+            connectionsData.forEach(connection => {
+                const connectionElement = document.createElement('div');
+                connectionElement.className = 'connection-card';
+                connectionElement.innerHTML = `
+                    <img src="${connection.image}" alt="${connection.name}">
+                    <h3>${connection.name}</h3>
+                    <button>Connect</button>
+                `;
+                connectionsList.appendChild(connectionElement);
+            });
+        }
+
+        // Initial load
+        showAuthForm();
+    </script>
+</body>
+</html>
