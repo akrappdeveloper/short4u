@@ -138,33 +138,61 @@
             margin-bottom: 15px;
         }
 
-        .post .author {
-            font-weight: bold;
-            margin-bottom: 5px;
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
         }
 
-        .post .timestamp {
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .post-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .post-author {
+            font-weight: bold;
+        }
+
+        .verified-badge {
+            color: #1DA1F2;
+            margin-left: 5px;
+        }
+
+        .post-timestamp {
             font-size: 0.8rem;
             color: var(--text-color-light);
+        }
+
+        .post-content {
             margin-bottom: 10px;
         }
 
-        .post .content {
-            margin-bottom: 10px;
+        .post-image {
+            max-width: 100%;
+            margin-top: 10px;
+            border-radius: 8px;
         }
 
-        .post .actions {
+        .post-actions {
             display: flex;
             justify-content: space-between;
             color: var(--text-color-light);
             font-size: 0.9rem;
+            margin-top: 10px;
         }
 
-        .post .actions span {
+        .post-actions span {
             cursor: pointer;
         }
 
-        .post .actions span:hover {
+        .post-actions span:hover {
             color: var(--primary-color);
         }
 
@@ -264,6 +292,32 @@
             margin-right: 10px;
         }
 
+        .comments-section {
+            margin-top: 10px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+        }
+
+        .comment {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .comment-form {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        .comment-form input {
+            flex-grow: 1;
+            margin-right: 10px;
+            margin-bottom: 0;
+        }
+
+        .comment-form button {
+            flex-shrink: 0;
+        }
+
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
@@ -294,12 +348,12 @@
         }
 
         @media (max-width: 480px) {
-            .post .actions {
+            .post-actions {
                 flex-direction: column;
                 align-items: flex-start;
             }
 
-            .post .actions span {
+            .post-actions span {
                 margin-bottom: 5px;
             }
 
@@ -338,22 +392,23 @@
     <script>
         // Firebase configuration
         const firebaseConfig = {
-        apiKey: "AIzaSyBrS4Lt9Ial4mBM1Fo_H3fqJt5u3WwarMk",
-        authDomain: "short4u-6d25f.web.app",
-        databaseURL: "https://short4u-6d25f-default-rtdb.firebaseio.com/",
-        projectId: "short4u-6d25f",
-        storageBucket: "gs://short4u-6d25f.appspot.com",
-        messagingSenderId: "short4u",
-        appId: "1:157319807751:web:5b4fd16dbb190246a47ba2",
-        measurementId: "https://analytics.google.com/analytics/web/?authuser=0&hl=en#/p461157141/reports/dashboard?r=firebase-overview"
-    };
-       // Initialize Firebase
-       firebase.initializeApp(firebaseConfig);
+            apiKey: "AIzaSyBrS4Lt9Ial4mBM1Fo_H3fqJt5u3WwarMk",
+            authDomain: "short4u-6d25f.web.app",
+            databaseURL: "https://short4u-6d25f-default-rtdb.firebaseio.com/",
+            projectId: "short4u-6d25f",
+            storageBucket: "gs://short4u-6d25f.appspot.com",
+            messagingSenderId: "short4u",
+            appId: "1:157319807751:web:5b4fd16dbb190246a47ba2",
+            measurementId: "https://analytics.google.com/analytics/web/?authuser=0&hl=en#/p461157141/reports/dashboard?r=firebase-overview"
+        };
 
-       // Get references to Firebase services
-       const auth = firebase.auth();
-       const database = firebase.database();
-       const storage = firebase.storage();
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Get references to Firebase services
+        const auth = firebase.auth();
+        const database = firebase.database();
+        const storage = firebase.storage();
 
         // DOM elements
         const mainContent = document.getElementById('main-content');
@@ -409,7 +464,8 @@
                     database.ref('users/' + user.uid).set({
                         email: user.email,
                         displayName: '',
-                        bio: ''
+                        bio: '',
+                        isVerified: false
                     });
                 })
                 .catch((error) => {
@@ -487,42 +543,78 @@
         }
 
         function savePost(userId, content, imageUrl = null) {
-            const postData = {
-                userId: userId,
-                content: content,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            };
+            database.ref('users/' + userId).once('value', (snapshot) => {
+                const user = snapshot.val();
+                const postData = {
+                    userId: userId,
+                    content: content,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    username: user.displayName,
+                    userProfileImageUrl: user.profilePicture,
+                    isVerified: user.isVerified,
+                    likesCount: 0,
+                    commentsCount: 0
+                };
 
-            if (imageUrl) {
-                postData.imageUrl = imageUrl;
-            }
+                if (imageUrl) {
+                    postData.imageUrl = imageUrl;
+                }
 
-            database.ref('posts').push(postData)
-            .then(() => {
-                document.getElementById('post-content').value = '';
-                
-                document.getElementById('post-image').value = '';
-                alert('Post created successfully!');
-                showHome();
-            })
-            .catch((error) => {
-                console.error('Error creating post:', error);
-                alert('Error creating post: ' + error.message);
+                database.ref('posts').push(postData)
+                .then(() => {
+                    document.getElementById('post-content').value = '';
+                    document.getElementById('post-image').value = '';
+                    alert('Post created successfully!');
+                    showHome();
+                })
+                .catch((error) => {
+                    console.error('Error creating post:', error);
+                    alert('Error creating post: ' + error.message);
+                });
             });
         }
 
+        let lastLoadedPost = null;
+        const postsPerPage = 10;
+
         function loadPosts(container, query = null) {
-            const postsRef = query ? query : database.ref('posts').orderByChild('timestamp').limitToLast(20);
-            postsRef.on('value', (snapshot) => {
-                container.innerHTML = '';
+            const postsRef = query 
+                ? query.limitToLast(postsPerPage + 1)
+                : database.ref('posts').orderByChild('timestamp').limitToLast(postsPerPage + 1);
+
+            if (lastLoadedPost) {
+                postsRef.endAt(lastLoadedPost.timestamp);
+            }
+
+            postsRef.once('value', (snapshot) => {
                 const posts = [];
                 snapshot.forEach((childSnapshot) => {
-                    posts.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                    const post = childSnapshot.val();
+                    post.id = childSnapshot.key;
+                    post.likesCount = childSnapshot.child('likes').numChildren();
+                    post.commentsCount = childSnapshot.child('comments').numChildren();
+                    posts.push(post);
                 });
-                posts.reverse().forEach(post => {
+
+                posts.reverse();
+
+                if (posts.length > postsPerPage) {
+                    lastLoadedPost = posts.pop();
+                } else {
+                    lastLoadedPost = null;
+                }
+
+                posts.forEach(post => {
                     const postElement = createPostElement(post);
                     container.appendChild(postElement);
                 });
+
+                if (lastLoadedPost) {
+                    const loadMoreButton = document.createElement('button');
+                    loadMoreButton.textContent = 'Load More';
+                    loadMoreButton.addEventListener('click', () => loadPosts(container, query));
+                    container.appendChild(loadMoreButton);
+                }
             });
         }
 
@@ -530,21 +622,106 @@
             const postElement = document.createElement('div');
             postElement.className = 'post';
             
-            database.ref('users/' + post.userId).once('value', (userSnapshot) => {
-                const user = userSnapshot.val();
-                postElement.innerHTML = `
-                    <div class="author">${user.displayName || 'Anonymous'}</div>
-                    <div class="timestamp">${new Date(post.timestamp).toLocaleString()}</div>
-                    <div class="content">${post.content}</div>
-                    ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Post image" style="max-width: 100%; margin-top: 10px;">` : ''}
-                    <div class="actions">
-                        <span><i class="far fa-thumbs-up"></i> Like</span>
-                        <span><i class="far fa-comment"></i> Comment</span>
-                        <span><i class="far fa-share-square"></i> Share</span>
+            postElement.innerHTML = `
+                <div class="post-header">
+                    <img src="${post.userProfileImageUrl || 'https://via.placeholder.com/40'}" alt="${post.username}" class="post-avatar">
+                    <div class="post-info">
+                        <span class="post-author" onclick="showUserProfile('${post.userId}')" style="cursor: pointer;">${post.username} ${post.isVerified ? '<span class="verified-badge">✓</span>' : ''}</span>
+                        <span class="post-timestamp">${new Date(post.timestamp).toLocaleString()}</span>
                     </div>
-                `;
+                </div>
+                <div class="post-content">${post.content}</div>
+                ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Post image" class="post-image">` : ''}
+                <div class="post-actions">
+                    <span class="like-action" data-post-id="${post.id}"><i class="far fa-thumbs-up"></i> Like (${post.likesCount || 0})</span>
+                    <span class="comment-action" data-post-id="${post.id}"><i class="far fa-comment"></i> Comment (${post.commentsCount || 0})</span>
+                    <span class="share-action" data-post-id="${post.id}"><i class="far fa-share-square"></i> Share</span>
+                </div>
+                <div class="comments-section" id="comments-${post.id}"></div>
+                <form class="comment-form" data-post-id="${post.id}">
+                    <input type="text" placeholder="Write a comment..." required>
+                    <button type="submit">Post</button>
+                </form>
+            `;
+
+            postElement.querySelector('.like-action').addEventListener('click', () => handleLike(post.id));
+            postElement.querySelector('.comment-action').addEventListener('click', () => toggleComments(post.id));
+            postElement.querySelector('.share-action').addEventListener('click', () => handleShare(post.id));
+
+            postElement.querySelector('.comment-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const commentContent = e.target.querySelector('input').value;
+                createComment(post.id, commentContent);
+                e.target.reset();
             });
+
+            loadComments(post.id);
             return postElement;
+        }
+
+        function handleLike(postId) {
+            const user = auth.currentUser;
+            if (user) {
+                const likeRef = database.ref(`posts/${postId}/likes/${user.uid}`);
+                likeRef.once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        likeRef.remove();
+                    } else {
+                        likeRef.set(true);
+                    }
+                });
+            } else {
+                alert('Please log in to like posts.');
+            }
+        }
+
+        function toggleComments(postId) {
+            const commentsSection = document.getElementById(`comments-${postId}`);
+            commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function handleShare(postId) {
+            alert('Share functionality not implemented yet.');
+        }
+
+        function createComment(postId, commentContent) {
+            const user = auth.currentUser;
+            if (user) {
+                const commentData = {
+                    userId: user.uid,
+                    username: user.displayName,
+                    content: commentContent,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                };
+                
+                database.ref('posts/' + postId + '/comments').push(commentData)
+                    .then(() => {
+                        console.log('Comment added successfully');
+                        loadComments(postId);
+                    })
+                    .catch((error) => {
+                        console.error('Error adding comment:', error);
+                    });
+            } else {
+                alert('Please log in to comment.');
+            }
+        }
+
+        function loadComments(postId) {
+            const commentsContainer = document.getElementById(`comments-${postId}`);
+            database.ref('posts/' + postId + '/comments').orderByChild('timestamp').on('value', (snapshot) => {
+                commentsContainer.innerHTML = '';
+                snapshot.forEach((childSnapshot) => {
+                    const comment = childSnapshot.val();
+                    const commentElement = document.createElement('div');
+                    commentElement.className = 'comment';
+                    commentElement.innerHTML = `
+                        <strong>${comment.username}</strong>: ${comment.content}
+                        <small>${new Date(comment.timestamp).toLocaleString()}</small>
+                    `;
+                    commentsContainer.appendChild(commentElement);
+                });
+            });
         }
 
         // Reel functions
@@ -566,21 +743,27 @@
         }
 
         function saveReel(userId, videoUrl) {
-            const reelData = {
-                userId: userId,
-                videoUrl: videoUrl,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            };
+            database.ref('users/' + userId).once('value', (snapshot) => {
+                const user = snapshot.val();
+                const reelData = {
+                    userId: userId,
+                    videoUrl: videoUrl,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    username: user.displayName,
+                    userProfileImageUrl: user.profilePicture,
+                    isVerified: user.isVerified
+                };
 
-            database.ref('reels').push(reelData)
-            .then(() => {
-                document.getElementById('reel-video').value = '';
-                alert('Reel created successfully!');
-                showHome();
-            })
-            .catch((error) => {
-                console.error('Error creating reel:', error);
-                alert('Error creating reel: ' + error.message);
+                database.ref('reels').push(reelData)
+                .then(() => {
+                    document.getElementById('reel-video').value = '';
+                    alert('Reel created successfully!');
+                    showHome();
+                })
+                .catch((error) => {
+                    console.error('Error creating reel:', error);
+                    alert('Error creating reel: ' + error.message);
+                });
             });
         }
 
@@ -602,20 +785,19 @@
             const reelElement = document.createElement('div');
             reelElement.className = 'reel';
             
-            database.ref('users/' + reel.userId).once('value', (userSnapshot) => {
-                const user = userSnapshot.val();
-                reelElement.innerHTML = `
-                    <video src="${reel.videoUrl}" loop muted></video>
-                    <div class="reel-author">${user.displayName || 'Anonymous'}</div>
-                `;
-                const video = reelElement.querySelector('video');
-                video.addEventListener('click', () => {
-                    if (video.paused) {
-                        video.play();
-                    } else {
-                        video.pause();
-                    }
-                });
+            reelElement.innerHTML = `
+                <video src="${reel.videoUrl}" loop muted></video>
+                <div class="reel-author">
+                    ${reel.username} ${reel.isVerified ? '<span class="verified-badge">✓</span>' : ''}
+                </div>
+            `;
+            const video = reelElement.querySelector('video');
+            video.addEventListener('click', () => {
+                if (video.paused) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
             });
             return reelElement;
         }
@@ -633,7 +815,7 @@
                     userElement.className = 'search-result';
                     userElement.innerHTML = `
                         <img src="${user.profilePicture || 'https://via.placeholder.com/50'}" alt="${user.displayName}">
-                        <span>${user.displayName}</span>
+                        <span>${user.displayName} ${user.isVerified ? '<span class="verified-badge">✓</span>' : ''}</span>
                     `;
                     searchResults.appendChild(userElement);
                 });
@@ -642,6 +824,7 @@
 
         // Navigation functions
         function showHome() {
+            lastLoadedPost = null;
             mainContent.innerHTML = `
                 <div class="card">
                     <h2>Create a Post</h2>
@@ -683,7 +866,7 @@
                             <div class="profile-header">
                                 <img src="${userData.profilePicture || 'https://via.placeholder.com/150'}" alt="Profile Picture" class="profile-picture">
                                 <div class="profile-info">
-                                    <h1>${userData.displayName || 'Anonymous'}</h1>
+                                    <h1>${userData.displayName || 'Anonymous'} ${userData.isVerified ? '<span class="verified-badge">✓</span>' : ''}</h1>
                                     <p>${userData.bio || 'No bio available'}</p>
                                 </div>
                             </div>
@@ -749,26 +932,72 @@
         }
 
         function loadConnections() {
-            // This is a placeholder function. In a real application, you would load the user's connections from the database.
-            const connectionsData = [
-                { id: 1, name: "John Doe", image: "https://via.placeholder.com/100" },
-                { id: 2, name: "Jane Smith", image: "https://via.placeholder.com/100" },
-                { id: 3, name: "Bob Johnson", image: "https://via.placeholder.com/100" },
-            ];
+            const user = auth.currentUser;
+            if (user) {
+                database.ref('users/' + user.uid + '/following').once('value', (snapshot) => {
+                    const connectionsList = document.getElementById('connections-list');
+                    connectionsList.innerHTML = '';
+                    snapshot.forEach((childSnapshot) => {
+                        const followedUserId = childSnapshot.key;
+                        database.ref('users/' + followedUserId).once('value', (userSnapshot) => {
+                            const followedUser = userSnapshot.val();
+                            const connectionElement = document.createElement('div');
+                            connectionElement.className = 'connection-card';
+                            connectionElement.innerHTML = `
+                                <img src="${followedUser.profilePicture || 'https://via.placeholder.com/80'}" alt="${followedUser.displayName}">
+                                <h3>${followedUser.displayName} ${followedUser.isVerified ? '<span class="verified-badge">✓</span>': ''}</h3>
+                                <button onclick="unfollowUser('${followedUserId}')">Unfollow</button>
+                            `;
+                            connectionsList.appendChild(connectionElement);
+                        });
+                    });
+                });
+            } else {
+                alert('Please log in to view your connections.');
+                showAuthForm();
+            }
+        }
 
-            const connectionsList = document.getElementById('connections-list');
-            connectionsList.innerHTML = '';
-            connectionsData.forEach(connection => {
-                const connectionElement = document.createElement('div');
-                connectionElement.className = 'connection-card';
-                connectionElement.innerHTML = `
-                    <img src="${connection.image}" alt="${connection.name}">
-                    <h3>${connection.name}</h3>
-                    <button>Connect</button>
+        function unfollowUser(unfollowUserId) {
+            const user = auth.currentUser;
+            if (user) {
+                database.ref('users/' + user.uid + '/following/' + unfollowUserId).remove()
+                .then(() => {
+                    database.ref('users/' + unfollowUserId + '/followers/' + user.uid).remove();
+                })
+                .then(() => {
+                    alert('User unfollowed successfully!');
+                    loadConnections();
+                })
+                .catch((error) => {
+                    console.error('Error unfollowing user:', error);
+                    alert('Error unfollowing user: ' + error.message);
+                });
+            }
+        }
+
+        function showUserProfile(userId) {
+            database.ref('users/' + userId).once('value', (snapshot) => {
+                const userData = snapshot.val();
+                mainContent.innerHTML = `
+                    <div class="card">
+                        <div class="profile-header">
+                            <img src="${userData.profilePicture || 'https://via.placeholder.com/150'}" alt="Profile Picture" class="profile-picture">
+                            <div class="profile-info">
+                                <h1>${userData.displayName || 'Anonymous'} ${userData.isVerified ? '<span class="verified-badge">✓</span>' : ''}</h1>
+                                <p>${userData.bio || 'No bio available'}</p>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h2>${userData.displayName}'s Posts</h2>
+                            <div class="posts-list" id="user-posts"></div>
+                        </div>
+                    </div>
                 `;
-                connectionsList.appendChild(connectionElement);
+                loadPosts(document.getElementById('user-posts'), database.ref('posts').orderByChild('userId').equalTo(userId));
             });
         }
+
 
         // Initial load
         showAuthForm();
